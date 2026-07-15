@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+ 
+<div class="stats">
+    <div class="stat-box"><h2>{{ total }}</h2><p>Total Tasks</p></div>
+    <div class="stat-box"><h2>{{ pending }}</h2><p>Pending</p></div>
+    <div class="stat-box"><h2>{{ completed }}</h2><p>Completed</p></div>
+</div>
+ 
+<div class="card" style="margin-bottom:20px;">
+    <h3>Add New Task</h3>
+    <form method="POST" action="{{ url_for('add_task') }}">
+        <label>Title</label>
+        <input type="text" name="title" placeholder="e.g. Finish Flask assignment" required>
+ 
+        <label>Description</label>
+        <textarea name="description" rows="2" placeholder="Optional details..."></textarea>
+ 
+        <button type="submit">Add Task</button>
+    </form>
+</div>
+ 
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>My Tasks</h3>
+        <div class="filters">
+            <a href="{{ url_for('dashboard', status='All') }}" class="{{ 'active' if filter_status=='All' }}">All</a>
+            <a href="{{ url_for('dashboard', status='Pending') }}" class="{{ 'active' if filter_status=='Pending' }}">Pending</a>
+            <a href="{{ url_for('dashboard', status='Completed') }}" class="{{ 'active' if filter_status=='Completed' }}">Completed</a>
+        </div>
+    </div>
+ 
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="task {{ 'completed' if task.status == 'Completed' }}">
+            <div>
+                <strong>{{ task.title }}</strong>
+                <span class="status-badge {{ task.status }}">{{ task.status }}</span>
+                {% if task.description %}<p style="margin:5px 0 0; color:#666; font-size:13px;">{{ task.description }}</p>{% endif %}
+            </div>
+            <div class="task-actions">
+                <a href="{{ url_for('toggle_status', task_id=task.id) }}" class="btn">✓ Toggle</a>
+                <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-secondary">Edit</a>
+                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger"
+                   onclick="return confirm('Delete this task?');">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#999;">No tasks found. Add one above!</p>
+    {% endif %}
+</div>
+ 
+{% endblock %}
